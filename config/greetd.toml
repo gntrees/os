@@ -1,0 +1,10 @@
+[terminal]
+# VT7 avoids live-config's autologin gettys on tty1-6; it also matches the
+# Conflicts=getty@tty7.service in the packaged greetd.service.
+vt = 7
+
+[default_session]
+command = "tuigreet --cmd /usr/bin/start-cosmic --time --remember"
+# The Debian/Ubuntu greetd package creates the `_greetd` system user, not
+# `greeter`; a missing user makes greetd exit and leaves the autologin tty.
+user = "_greetd"

@@ -1,0 +1,12 @@
+# Active COSMIC components (kind: config, domain: components).
+# Format: <name>  <yes|no>
+# Repo, commit and builder are pinned in versions.lock.
+
+cosmic-comp             yes
+cosmic-session          yes
+cosmic-panel            yes
+cosmic-applets          yes
+cosmic-notifications    yes
+cosmic-settings-daemon  yes
+cosmic-bg               yes
+cosmic-icons            yes

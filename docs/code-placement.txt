@@ -1,0 +1,202 @@
+GENERAL CODE PLACEMENT — gntress-os placement note
+===================================================
+
+Adapted from the project-agnostic "kind + domain" placement rule. This file is the
+authoritative placement note for this repository: read it before creating, moving,
+renaming, or reorganizing files or folders.
+
+No Markdown documentation is kept here; AGENTS.md is the only Markdown file.
+
+-------------------------------------------------------------------------------
+1. SCOPE
+-------------------------------------------------------------------------------
+- A "source unit" is one file.
+- This rule governs folder layout only: not file contents, identifier style, or
+  language features.
+- Where a language, compiler, or build tool mandates a path or name, that mandate
+  wins. Record the deviation as an explicit exception (section 8).
+
+-------------------------------------------------------------------------------
+2. THE TWO AXES
+-------------------------------------------------------------------------------
+kind   = what a file is, by function/responsibility (scope-agnostic).
+domain = what a file is about, by subject/scope (function-agnostic).
+
+Every file has exactly one kind and exactly one domain.
+Kinds and domains are project-defined; the vocabulary in section 7 is this repo's.
+
+-------------------------------------------------------------------------------
+3. FOLDER TYPES
+-------------------------------------------------------------------------------
+- kind folder: named after a kind; every file beneath it has that kind.
+- domain folder: named after a domain; everything beneath it belongs to that domain
+  or one of its sub-domains.
+
+Every folder is exactly one of the two — never both, never neither.
+
+-------------------------------------------------------------------------------
+4. INVARIANT
+-------------------------------------------------------------------------------
+On any root -> leaf path there is AT MOST ONE kind folder.
+Every other folder on that path is a domain folder.
+
+-------------------------------------------------------------------------------
+5. RULES (normative)
+-------------------------------------------------------------------------------
+R1. One file = one kind + one domain. A file serving two kinds must be split.
+R2. Every folder is either a kind folder or a domain folder — never mixed.
+R3. At most one kind folder on any root -> leaf path.
+R4. A domain folder contains EITHER:
+      (A) only domain folders — no files; OR
+      (B) only kind folders and files, where the direct files have
+          pairwise-distinct kinds.
+    If two or more direct files would share a kind, wrap them in a kind folder.
+R5. A kind folder contains domain folders and/or files. Every file beneath it has
+    the folder's kind. Its DIRECT files have pairwise-distinct domains.
+    If two or more direct files would share a domain (or a similar domain), wrap
+    them in a domain folder.
+R6. A kind folder never has another kind folder as ancestor or descendant.
+R7. Below a kind folder every descendant file has that kind; domain folders may
+    nest freely. R4's "distinct kinds" rule does not apply to domain folders below
+    a kind folder.
+
+"Direct" means a file sitting immediately in the folder, not inside a sub-folder.
+
+Consequence: a kind folder is never a sibling of a domain folder. A folder's
+children are either all domain folders, or kind folders plus files.
+
+-------------------------------------------------------------------------------
+6. NAMING
+-------------------------------------------------------------------------------
+- Kind folder = the kind verbatim, lowercase.
+- Domain folder = the domain verbatim, following platform identifier rules.
+- Never name a domain folder after a kind, or a kind folder after a domain.
+- Avoid names that differ only by case: the tree must stay portable to
+  case-insensitive filesystems.
+
+-------------------------------------------------------------------------------
+7. THIS REPOSITORY: VOCABULARY AND LAYOUT
+-------------------------------------------------------------------------------
+Kinds used here:
+  config     declarative inputs (build settings, pins, package lists, desktop entry)
+  script     executable shell entry points (host or container)
+  container  container image definitions (Dockerfiles)
+  profile    image/profile inputs consumed by the ISO builder
+  doc        documentation (plain text only)
+  app        application source trees built for the image
+
+Domains used here:
+  build, components, versions, greetd, wallpaper, installer,
+  doctor, fetch, stage, preview, iso, clean, usb, vendor, app, container, vm,
+  ubuntu, ubuntu-iso, placement
+
+Layout map (module root is plumbing, see section 8):
+
+  AGENTS.md                         plumbing
+  justfile                          plumbing
+  .gitignore                        plumbing
+
+  config/                           KIND: config
+    build.conf                      domain: build
+    components.list                 domain: components
+    versions.lock                   domain: versions
+    greetd.toml                     domain: greetd
+    vendor.lock                     domain: vendor
+    wallpaper/                      domain: wallpaper
+      gntress-genesis.jpg
+      cosmic-background.ron
+    installer/                      domain: installer
+      settings.conf
+      modules/                      (per-module Calamares config)
+      branding/gntress/branding.desc
+      gntress-installer.desktop
+      calamares.desktop              (NoDisplay override)
+
+  scripts/                          KIND: script
+    lib.sh                          domain: shared
+    doctor.sh                       domain: doctor
+    fetch.sh                        domain: fetch
+    build.sh                        domain: build
+    stage.sh                        domain: stage
+    preview.sh                      domain: preview
+    iso.sh                          domain: iso
+    clean.sh                        domain: clean
+    usb.sh                          domain: usb
+    vendor.sh                       domain: vendor
+    app.sh                          domain: app
+    container-build.sh              domain: container-build
+    container-stage.sh              domain: container-stage
+    container-preview.sh            domain: container-preview
+    container-iso.sh                domain: container-iso
+    container-app.sh                domain: container-app
+    container-vm.sh                 domain: container-vm
+    vm.sh                           domain: vm
+    installer/gntress-installer    domain: installer
+    installer/postinstall.sh       domain: installer
+
+  apps/                             KIND: app
+    launcher/                       domain: launcher (package root, see E5)
+
+  containers/                       KIND: container
+    ubuntu.Dockerfile               domain: ubuntu
+    ubuntu-iso.Dockerfile           domain: ubuntu-iso
+    vm.Dockerfile                   domain: vm
+
+  profile/                          KIND: profile
+    ubuntu/                         domain: ubuntu
+      config/...                    mandated by live-build (see section 8)
+
+  docs/                             KIND: doc
+    code-placement.txt              domain: placement
+
+-------------------------------------------------------------------------------
+8. RECORDED EXCEPTIONS
+-------------------------------------------------------------------------------
+E1. Module root plumbing.
+    AGENTS.md, justfile and .gitignore sit at the module root and are exempt from
+    kind/domain placement, per the rule's workspace/package-root exception.
+
+E2. live-build mandated path.
+    profile/ubuntu/config/ is fixed by live-build (package-lists, hooks, includes).
+    It is treated as one opaque build-tool folder. Files inside it are not assigned
+    a kind/domain and must not be moved to satisfy this rule.
+
+E3. Flat container names.
+    containers/ubuntu.Dockerfile and containers/ubuntu-iso.Dockerfile are kept flat
+    because Dockerfile naming and `docker build -f` paths are command-facing. The
+    two domains are treated as distinct image targets.
+
+E4. Container-side scripts.
+    Scripts executed inside the build container live beside the host scripts, named
+    with a `container-` domain prefix, instead of in a nested directory. This keeps
+    every file under scripts/ the same kind and avoids a domain folder whose direct
+    files all share one kind.
+
+E5. Application package roots.
+    Each folder under apps/ is a package root. Files inside it follow the
+    toolchain's own layout (src/, ui/, data/, tauri.conf.json) and are not assigned
+    a kind or domain individually.
+
+-------------------------------------------------------------------------------
+9. PLACING A FILE — ALGORITHM
+-------------------------------------------------------------------------------
+1. Assign the file's kind and domain (split or clarify if ambiguous).
+2. Walk down the domain path to the file's domain folder, creating folders as needed.
+3. At that domain folder:
+     - if it already has a kind folder for the file's kind, place the file inside;
+     - else if a file of the same kind already sits there, create the kind folder,
+       move all same-kind files into it, then add the new file;
+     - otherwise place the file directly.
+4. Re-check R2–R7 on every affected folder.
+
+-------------------------------------------------------------------------------
+10. CHECKLIST
+-------------------------------------------------------------------------------
+[ ] one kind + one domain per file
+[ ] no path with two kind folders
+[ ] no kind folder inside a kind folder
+[ ] every domain folder is pure-domain OR kind-folders + kind-distinct files
+[ ] every kind folder's descendants share its kind; direct files have distinct domains
+[ ] mixed-kind files split
+[ ] naming portable across case-insensitive filesystems
+[ ] every exception recorded in section 8, never silent

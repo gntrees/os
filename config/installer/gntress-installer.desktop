@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Install gntress-os
+Comment=Install gntress-os to this computer
+Exec=/usr/bin/gntress-installer
+Icon=drive-harddisk
+Terminal=false
+Categories=System;
+Keywords=install;setup;calamares;

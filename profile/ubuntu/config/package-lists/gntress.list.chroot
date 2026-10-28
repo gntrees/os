@@ -1,0 +1,94 @@
+# Packages for the live ISO chroot (kind: profile, domain: ubuntu).
+# COSMIC binaries arrive through config/includes.chroot from `just stage`.
+# This list only covers the base system, login, and runtime dependencies.
+
+# --- live system ---
+live-boot
+live-config
+systemd-sysv
+dbus
+dbus-user-session
+sudo
+
+# --- kernel & firmware ---
+linux-image-generic
+linux-firmware
+
+# --- login ---
+greetd
+tuigreet
+
+# --- graphics / wayland stack ---
+xwayland
+mesa-vulkan-drivers
+libgl1-mesa-dri
+# EGL + GLES loaders that cosmic-comp (and wgpu) dlopen at runtime.
+# libegl-mesa0 ships the Mesa driver only; without these two the compositor
+# exits before drawing anything and the session hangs with no screen.
+libegl1
+libgles2
+libegl-mesa0
+libgbm1
+libseat1
+libdrm2
+libwayland-client0
+libwayland-server0
+libwayland-egl1
+libxkbcommon0
+libinput10
+libdisplay-info3
+libpixman-1-0
+libxcb1
+libxcb-render0
+libxcb-shape0
+libxcb-xfixes0
+
+# --- desktop apps: launcher (Tauri) ---
+libgtk-3-0t64
+libwebkit2gtk-4.1-0
+
+# --- terminal ---
+alacritty
+
+# --- disk installer (Calamares) ---
+calamares
+# Qt's xcb platform plugin needs this when it falls back from Wayland to Xwayland.
+libxcb-cursor0
+os-prober
+grub-common
+grub2-common
+grub-pc-bin
+grub-efi-amd64-bin
+# Signed chain so the installed system can boot with Secure Boot enabled.
+grub-efi-amd64-signed
+shim-signed
+
+# --- multimedia / session services ---
+pipewire
+pipewire-pulse
+wireplumber
+libpipewire-0.3-0
+libpulse0
+libgstreamer1.0-0
+libgstreamer-plugins-base1.0-0
+gstreamer1.0-plugins-base
+gstreamer1.0-plugins-good
+libdav1d7
+libpam0g
+
+# --- system integration ---
+accountsservice
+network-manager
+polkitd
+upower
+udisks2
+gvfs
+xdg-desktop-portal
+xdg-desktop-portal-gtk
+dconf-cli
+
+# --- fonts & icons ---
+fonts-noto-core
+fonts-open-sans
+hicolor-icon-theme
+adwaita-icon-theme

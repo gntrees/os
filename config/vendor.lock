@@ -1,0 +1,7 @@
+# External app artifacts (kind: config, domain: vendor).
+# Format: <name>  <type>  <url>  <sha256>
+# type: deb | tar
+# Fetched and verified by `just vendor`; installed by `just iso`.
+#
+# Empty on purpose: Helium and Strata were removed. The app installer will add
+# pinned entries here when it lands.

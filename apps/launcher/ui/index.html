@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>gntress</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main id="app">
+      <header id="status">
+        <div class="clock">
+          <span id="time">--:--</span>
+          <span id="date"></span>
+        </div>
+        <div class="applets">
+          <span class="applet" id="network" title="Jaringan">net --</span>
+          <span class="applet" id="memory" title="Memori">mem --%</span>
+          <span class="applet" id="battery" title="Baterai" hidden>bat --%</span>
+        </div>
+      </header>
+
+      <div id="search">
+        <span class="prompt">&gt;</span>
+        <input
+          id="q"
+          type="text"
+          placeholder="Cari aplikasi…"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+        />
+      </div>
+
+      <ul id="list" role="listbox"></ul>
+
+      <footer id="hint">
+        <span><kbd>↑</kbd><kbd>↓</kbd> pilih</span>
+        <span><kbd>Enter</kbd> buka</span>
+        <span><kbd>Esc</kbd> tutup</span>
+        <span id="count"></span>
+      </footer>
+    </main>
+    <script src="main.js"></script>
+  </body>
+</html>

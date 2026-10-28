@@ -1,0 +1,11 @@
+/build/
+/dist/
+*.iso
+*.img
+*.qcow2
+*.log
+*.ppm
+vm-shot*.png
+shot-*.png
+apps/launcher/target/
+apps/launcher/gen/

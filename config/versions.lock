@@ -1,0 +1,12 @@
+# Pinned commits from the epoch-1.11.0 submodule tree (kind: config, domain: versions).
+# Format: <name>  <repo>  <commit>  <builder>
+# builder: just | install-only
+
+cosmic-comp             pop-os/cosmic-comp             8cb1802caada438bb5cc7670dfabdaca5fad0502  just
+cosmic-session          pop-os/cosmic-session          4b0a0a24e98b9e755b6a7146e4cb29539cacda0a  just
+cosmic-panel            pop-os/cosmic-panel            ca20ce3185b3b4404f429d59d429c40b58a2ddef  just
+cosmic-applets          pop-os/cosmic-applets          328d142faac17c9cc3e00d434d05060411c007ea  just
+cosmic-notifications    pop-os/cosmic-notifications    382927dc48964f3b098429ad6b836cc4b7e7ecf2  just
+cosmic-settings-daemon  pop-os/cosmic-settings-daemon  655b14fb9572dd7f7231ec6c343c63984e99741a  just
+cosmic-bg               pop-os/cosmic-bg               9520e16758693bc2f6845d52680f236d548edda2  just
+cosmic-icons            pop-os/cosmic-icons            f1a282a0822aed1f0083dd2ab2e6c65bd5b401eb  install-only

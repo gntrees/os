@@ -1,0 +1,44 @@
+---
+componentName: gntress
+
+# Global look. These are read at the top level (not inside `strings`).
+welcomeStyleCalamares: false
+welcomeExpandingLogo: true
+
+windowExpanding: normal
+windowSize: 1024px,700px
+windowPlacement: center
+
+sidebar: widget
+navigation: widget
+
+# Calamares 3.3 reads *all* product text from this map. Putting productName
+# at the top level makes Branding::loadStrings() throw, which is fatal.
+strings:
+    productName: "gntress-os"
+    shortProductName: gntress
+    version: 0.1.0
+    shortVersion: "0.1"
+    versionedName: "gntress-os 0.1.0"
+    shortVersionedName: "gntress 0.1"
+    bootloaderEntryName: "gntress-os"
+    productUrl: "https://github.com/gntrees/os"
+    supportUrl: "https://github.com/gntrees/os/issues"
+    knownIssuesUrl: "https://github.com/gntrees/os/issues"
+    releaseNotesUrl: "https://github.com/gntrees/os/releases"
+    donateUrl: ""
+
+# A sequence means the classic image slideshow; a scalar must be a .qml file.
+slideshow: [ "welcome.jpg" ]
+
+# Only these four keys exist, and their names are capitalised.
+style:
+    SidebarBackground: "#1b2333"
+    SidebarBackgroundCurrent: "#2a3350"
+    SidebarText: "#eceaf5"
+    SidebarTextCurrent: "#ffffff"
+
+images:
+    productLogo: "logo.png"
+    productIcon: "icon.png"
+    productWelcome: "welcome.jpg"

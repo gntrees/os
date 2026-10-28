@@ -1,0 +1,20 @@
+#!/bin/sh
+# gntress-installer — start Calamares as root (kind: script, domain: installer).
+#
+# pkexec is deliberately not used: the live image ships no polkit authentication
+# agent, and pkexec strips WAYLAND_DISPLAY/XDG_RUNTIME_DIR, which Qt needs on a
+# Wayland session. The live user already has passwordless sudo, so pass the
+# session environment explicitly and elevate through that instead.
+set -eu
+
+if [ "$(id -u)" -eq 0 ]; then
+    exec /usr/bin/calamares "$@"
+fi
+
+exec sudo -n env \
+    DISPLAY="${DISPLAY:-}" \
+    XAUTHORITY="${XAUTHORITY:-}" \
+    WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-}" \
+    XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-}" \
+    QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-wayland;xcb}" \
+    /usr/bin/calamares "$@"

@@ -1,0 +1,19 @@
+[package]
+name = "gntress-launcher"
+version = "0.1.0"
+edition = "2021"
+description = "Raycast-style application launcher for gntress-os"
+license = "GPL-3.0-only"
+
+[build-dependencies]
+tauri-build = { version = "2" }
+
+[dependencies]
+tauri = { version = "2" }
+serde = { version = "1", features = ["derive"] }
+chrono = { version = "0.4" }
+
+[profile.release]
+opt-level = "s"
+lto = true
+strip = true

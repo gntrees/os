@@ -1,0 +1,19 @@
+#!/bin/sh
+# gntrees-live-session — the whole live session: Calamares in a Wayland kiosk
+# (kind: script, domain: installer).
+#
+# greetd starts this as the live user. cage owns the display, so there is no
+# login prompt, panel, or wallpaper on the live medium.
+#
+# Qt must use its Wayland plugin: cage exports DISPLAY but not XAUTHORITY, so Qt's
+# xcb plugin cannot authenticate to the XWayland server it starts. The Wayland
+# plugin needs no X auth, and qt6-wayland is installed by the package list.
+#
+# `-s` allows VT switching, which keeps Ctrl+Alt+F2 available as an escape
+# hatch when the installer misbehaves.
+set -eu
+
+QT_QPA_PLATFORM=wayland
+export QT_QPA_PLATFORM
+
+exec cage -s -- /usr/bin/gntrees-installer

@@ -1,5 +1,5 @@
 #!/bin/sh
-# gntress-installer — start Calamares as root (kind: script, domain: installer).
+# gntrees-installer — start Calamares as root (kind: script, domain: installer).
 #
 # pkexec is deliberately not used: the live image ships no polkit authentication
 # agent, and pkexec strips WAYLAND_DISPLAY/XDG_RUNTIME_DIR, which Qt needs on a

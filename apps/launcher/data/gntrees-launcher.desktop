@@ -2,8 +2,8 @@
 Type=Application
 Name=Launcher
 Comment=Search and open applications
-Exec=gntress-launcher
-Icon=system-search
+Exec=gntrees-launcher
+Icon=gntrees-launcher
 Terminal=false
 NoDisplay=true
 Categories=Utility;

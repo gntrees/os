@@ -1,23 +1,23 @@
 #!/usr/bin/env bash
 . "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
-log "gntress-os doctor"
+log "gntrees-os doctor"
 
-printf 'repo             : %s\n' "$GNTRESS_ROOT"
-printf 'filesystem repo  : %s\n' "$(fs_type "$GNTRESS_ROOT")"
-printf 'build dir        : %s\n' "$GNTRESS_BUILD_DIR"
-printf 'suite            : %s\n' "$GNTRESS_SUITE"
-printf 'cpu              : %s jobs (host: %s threads)\n' "$GNTRESS_JOBS" "$(nproc 2>/dev/null || echo '?')"
+printf 'repo             : %s\n' "$GNTREES_ROOT"
+printf 'filesystem repo  : %s\n' "$(fs_type "$GNTREES_ROOT")"
+printf 'build dir        : %s\n' "$GNTREES_BUILD_DIR"
+printf 'suite            : %s\n' "$GNTREES_SUITE"
+printf 'cpu              : %s jobs (host: %s threads)\n' "$GNTREES_JOBS" "$(nproc 2>/dev/null || echo '?')"
 printf 'ram              : %s\n' "$(awk '/^MemTotal:/ {printf "%.1f GiB", $2/1048576}' /proc/meminfo)"
 printf 'swap             : %s\n' "$(awk '/^SwapTotal:/ {if ($2 == 0) print "0 (tidak ada)"; else printf "%.1f GiB", $2/1048576}' /proc/meminfo)"
 
-case "$(fs_type "$GNTRESS_ROOT")" in
+case "$(fs_type "$GNTREES_ROOT")" in
   ntfs*|fuseblk)
     warn "repo ada di NTFS. Jangan build di sini; artefak sudah diarahkan ke build dir." ;;
 esac
 
-mkdir -p "$GNTRESS_BUILD_DIR"
-room="$(df -Pk "$GNTRESS_BUILD_DIR" | awk 'NR == 2 {print int($4 / 1048576)}')"
+mkdir -p "$GNTREES_BUILD_DIR"
+room="$(df -Pk "$GNTREES_BUILD_DIR" | awk 'NR == 2 {print int($4 / 1048576)}')"
 printf 'free build dir   : %s GiB\n' "${room:-0}"
 [ "${room:-0}" -ge 25 ] || warn "ruang < 25 GiB; compile COSMIC + ISO butuh ~25-40 GiB"
 

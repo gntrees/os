@@ -4,24 +4,24 @@
 docker_ok
 ensure_build_dirs
 
-log "build image: $GNTRESS_BUILDER_IMAGE"
-docker build -q -t "$GNTRESS_BUILDER_IMAGE" \
-  -f "$GNTRESS_ROOT/containers/ubuntu.Dockerfile" "$GNTRESS_ROOT/containers" >/dev/null
+log "build image: $GNTREES_BUILDER_IMAGE"
+docker build -q -t "$GNTREES_BUILDER_IMAGE" \
+  -f "$GNTREES_ROOT/containers/ubuntu.Dockerfile" "$GNTREES_ROOT/containers" >/dev/null
 
-log "compile komponen (jobs=$GNTRESS_JOBS)"
+log "compile komponen (jobs=$GNTREES_JOBS)"
 docker run --rm \
-  -v "$GNTRESS_ROOT:/gntress:ro" \
-  -v "$GNTRESS_SRC_DIR:/src" \
-  -v "$GNTRESS_CARGO_DIR:/cargo" \
-  -v "$GNTRESS_TARGET_DIR:/target" \
-  -e GNTRESS_ROOT=/gntress \
+  -v "$GNTREES_ROOT:/gntrees:ro" \
+  -v "$GNTREES_SRC_DIR:/src" \
+  -v "$GNTREES_CARGO_DIR:/cargo" \
+  -v "$GNTREES_TARGET_DIR:/target" \
+  -e GNTREES_ROOT=/gntrees \
   -e CARGO_HOME=/cargo \
   -e CARGO_TARGET_DIR=/target \
-  -e CARGO_BUILD_JOBS="$GNTRESS_JOBS" \
+  -e CARGO_BUILD_JOBS="$GNTREES_JOBS" \
   -e CARGO_NET_GIT_FETCH_WITH_CLI=true \
-  -e GNTRESS_UID="$(id -u)" \
-  -e GNTRESS_GID="$(id -g)" \
-  "$GNTRESS_BUILDER_IMAGE" \
-  bash /gntress/scripts/container-build.sh
+  -e GNTREES_UID="$(id -u)" \
+  -e GNTREES_GID="$(id -g)" \
+  "$GNTREES_BUILDER_IMAGE" \
+  bash /gntrees/scripts/container-build.sh
 
-log "selesai. target dir: $GNTRESS_TARGET_DIR"
+log "selesai. target dir: $GNTREES_TARGET_DIR"

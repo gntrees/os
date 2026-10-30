@@ -1,0 +1,10 @@
+Package: gntrees-os-config
+Version: @VERSION@
+Architecture: @ARCH@
+Maintainer: Gntrees Maintainers <maintainers@gntrees.com>
+Installed-Size: @INSTALLED_SIZE@
+Section: admin
+Priority: optional
+Description: system configuration for gntrees-os
+ Desktop greeter configuration that the installer carries over from the live
+ medium to the installed system.

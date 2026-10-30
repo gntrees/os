@@ -8,7 +8,7 @@ while read -r name repo rev builder; do
   [ -n "$repo" ] && [ -n "$rev" ] \
     || die "components.list: '$name' tidak punya pin lengkap di versions.lock"
 
-  dir="$GNTRESS_SRC_DIR/$name"
+  dir="$GNTREES_SRC_DIR/$name"
 
   if [ ! -d "$dir/.git" ]; then
     log "clone $repo"
@@ -31,4 +31,4 @@ while read -r name repo rev builder; do
   log "$name @ ${rev:0:12} (${builder})"
 done < <(enabled_components)
 
-log "source siap di $GNTRESS_SRC_DIR"
+log "source siap di $GNTREES_SRC_DIR"

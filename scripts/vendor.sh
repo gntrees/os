@@ -5,7 +5,7 @@
 
 require curl sha256sum
 ensure_build_dirs
-mkdir -p "$GNTRESS_CACHE_DIR/vendor"
+mkdir -p "$GNTREES_CACHE_DIR/vendor"
 
 while read -r name type url sha; do
   [ -n "$url" ] && [ -n "$sha" ] || die "vendor.lock: entri '$name' tidak lengkap"
@@ -33,6 +33,6 @@ while read -r name type url sha; do
 
   mv -f "$part" "$file"
   log "$name: sha256 ok"
-done < <(awk '!/^[[:space:]]*#/ && NF >= 4 { print $1, $2, $3, $4 }' "$GNTRESS_ROOT/config/vendor.lock")
+done < <(awk '!/^[[:space:]]*#/ && NF >= 4 { print $1, $2, $3, $4 }' "$GNTREES_ROOT/config/vendor.lock")
 
-log "artefak vendor siap di $GNTRESS_CACHE_DIR/vendor"
+log "artefak vendor siap di $GNTREES_CACHE_DIR/vendor"

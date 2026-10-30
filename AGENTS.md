@@ -1,4 +1,4 @@
-# Agent rules — gntress-os
+# Agent rules — gntrees-os
 
 ## Documentation
 
@@ -21,7 +21,7 @@ silently.
 
 - `just` is the only task runner.
 - Never build inside the working tree: it is on NTFS. All artifacts live under
-  `~/.cache/gntress-os` (override with `GNTRESS_BUILD_DIR`).
+  `~/.cache/gntrees-os` (override with `GNTREES_BUILD_DIR`).
 - Do not run long builds, pull container images, or fetch sources unless asked.
 - COSMIC components are pinned in `config/versions.lock`; do not use floating
   branches.

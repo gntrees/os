@@ -102,5 +102,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       xwayland \
     && rm -rf /var/lib/apt/lists/*
 
+# APT repository tooling for `just deb` and `just repo`.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      apt-utils \
+      dpkg-dev \
+      gnupg \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /src
 CMD ["/bin/bash"]

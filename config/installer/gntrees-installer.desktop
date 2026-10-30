@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Application
-Name=Install gntress-os
-Comment=Install gntress-os to this computer
-Exec=/usr/bin/gntress-installer
+Name=Install gntrees-os
+Comment=Install gntrees-os to this computer
+Exec=/usr/bin/gntrees-installer
 Icon=drive-harddisk
 Terminal=false
 Categories=System;

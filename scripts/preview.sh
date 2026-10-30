@@ -2,7 +2,7 @@
 . "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
 docker_ok
-[ -x "$GNTRESS_ROOTFS_DIR/usr/bin/cosmic-session" ] \
+[ -x "$GNTREES_ROOTFS_DIR/usr/bin/cosmic-session" ] \
   || die "rootfs belum siap; jalankan 'just stage' dulu"
 
 args=(
@@ -11,8 +11,8 @@ args=(
   -e COSMIC_BACKEND=x11
   -e XDG_RUNTIME_DIR=/tmp/xdg
   -v /tmp/.X11-unix:/tmp/.X11-unix
-  -v "$GNTRESS_ROOT:/gntress:ro"
-  -v "$GNTRESS_ROOTFS_DIR:/stage:ro"
+  -v "$GNTREES_ROOT:/gntrees:ro"
+  -v "$GNTREES_ROOTFS_DIR:/stage:ro"
 )
 
 if [ -d /dev/dri ]; then
@@ -26,5 +26,5 @@ elif [ -f "$HOME/.Xauthority" ]; then
 fi
 
 log "preview COSMIC nested di DISPLAY=${DISPLAY:-:0}"
-docker run "${args[@]}" "$GNTRESS_BUILDER_IMAGE" \
-  bash /gntress/scripts/container-preview.sh
+docker run "${args[@]}" "$GNTREES_BUILDER_IMAGE" \
+  bash /gntrees/scripts/container-preview.sh

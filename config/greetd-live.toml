@@ -1,0 +1,17 @@
+[terminal]
+# VT7 avoids live-config's autologin gettys on tty1-6; it also matches the
+# Conflicts=getty@tty7.service in the packaged greetd.service.
+vt = 7
+
+# The live medium installs; it does not offer a desktop session. greetd runs
+# the initial session once per boot (it keeps a runfile in /run), so if the
+# installer exits or crashes the greeter below appears instead of a reboot loop.
+[initial_session]
+command = "/usr/bin/gntrees-live-session"
+user = "user"
+
+# Fallback only, reached after the installer exits. The installed system uses
+# config/greetd.toml instead; postinstall.sh restores that file.
+[default_session]
+command = "tuigreet --cmd /usr/bin/start-cosmic --time"
+user = "_greetd"

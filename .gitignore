@@ -9,3 +9,8 @@ vm-shot*.png
 shot-*.png
 apps/launcher/target/
 apps/launcher/gen/
+
+# Signing material never belongs in the tree; keys live in GNTREES_BUILD_DIR.
+# The public key (*.pub.asc) is safe to commit and is not ignored.
+*signing-key.asc
+*.secret.asc

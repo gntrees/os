@@ -18,6 +18,14 @@ linux-firmware
 greetd
 tuigreet
 
+# --- live installer kiosk ---
+# cage owns the display on the live medium so the ISO boots straight into
+# Calamares; it pulls in xwayland as a dependency.
+cage
+# Qt6 Wayland platform plugin (libqwayland.so) for Calamares. Using it avoids
+# XWayland authentication: cage exports DISPLAY but not XAUTHORITY.
+qt6-wayland
+
 # --- graphics / wayland stack ---
 xwayland
 mesa-vulkan-drivers
@@ -77,6 +85,9 @@ libdav1d7
 libpam0g
 
 # --- system integration ---
+# The gntrees package repository is HTTPS-only, and apt needs the CA bundle to
+# reach it both during the build and on the installed system.
+ca-certificates
 accountsservice
 network-manager
 polkitd

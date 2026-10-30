@@ -1,0 +1,27 @@
+#!/bin/sh
+# grub-install wrapper for Calamares (kind: script, domain: installer).
+#
+# Calamares' installEFIFallback copies the GRUB EFI binary to
+# EFI/BOOT/BOOTX64.EFI, but not the early grub.cfg next to it. Firmware that
+# boots the fallback loader without an NVRAM entry (fresh OVMF variables,
+# cleared NVRAM, some mainboards) then has no config to load and drops to the
+# grub> prompt. Copy the stub beside the fallback binary after a successful
+# grub-install so the removable-media path works as well.
+set -eu
+
+/usr/sbin/grub-install "$@"
+
+[ -d /boot/efi/EFI ] || exit 0
+
+# Calamares creates EFI/BOOT only after grub-install returns (for the
+# fallback binary copy), so create it here before writing the stub.
+mkdir -p /boot/efi/EFI/BOOT
+
+for dir in /boot/efi/EFI/*/; do
+    case "$dir" in
+        /boot/efi/EFI/BOOT/) continue ;;
+    esac
+    if [ -f "${dir}grub.cfg" ]; then
+        cp -f "${dir}grub.cfg" /boot/efi/EFI/BOOT/grub.cfg
+    fi
+done

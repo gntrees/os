@@ -1,4 +1,4 @@
-// gntress-launcher frontend: filter the application list and run the picked one.
+// gntrees-launcher frontend: filter the application list and run the picked one.
 const { invoke } = window.__TAURI__.core;
 
 const input = document.getElementById("q");

@@ -1,8 +1,8 @@
 [package]
-name = "gntress-launcher"
+name = "gntrees-launcher"
 version = "0.1.0"
 edition = "2021"
-description = "Raycast-style application launcher for gntress-os"
+description = "Raycast-style application launcher for gntrees-os"
 license = "GPL-3.0-only"
 
 [build-dependencies]

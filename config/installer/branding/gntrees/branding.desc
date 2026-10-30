@@ -1,5 +1,5 @@
 ---
-componentName: gntress
+componentName: gntrees
 
 # Global look. These are read at the top level (not inside `strings`).
 welcomeStyleCalamares: false
@@ -15,13 +15,13 @@ navigation: widget
 # Calamares 3.3 reads *all* product text from this map. Putting productName
 # at the top level makes Branding::loadStrings() throw, which is fatal.
 strings:
-    productName: "gntress-os"
-    shortProductName: gntress
+    productName: "gntrees-os"
+    shortProductName: gntrees
     version: 0.1.0
     shortVersion: "0.1"
-    versionedName: "gntress-os 0.1.0"
-    shortVersionedName: "gntress 0.1"
-    bootloaderEntryName: "gntress-os"
+    versionedName: "gntrees-os 0.1.0"
+    shortVersionedName: "gntrees 0.1"
+    bootloaderEntryName: "gntrees-os"
     productUrl: "https://github.com/gntrees/os"
     supportUrl: "https://github.com/gntrees/os/issues"
     knownIssuesUrl: "https://github.com/gntrees/os/issues"

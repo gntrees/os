@@ -19,6 +19,14 @@ done
 rm -rf /home/user
 rm -f /etc/sudoers.d/live /etc/sudoers.d/user
 
+# unpackfs also copied the live kiosk session: restore the desktop greeter so
+# the installed system reaches COSMIC instead of booting back into the
+# installer, and drop the live-only pieces.
+install -m0644 /usr/local/lib/gntrees/greetd-desktop.toml /etc/greetd/config.toml
+rm -f /usr/bin/gntrees-live-session
+rm -f /usr/share/applications/gntrees-installer.desktop \
+      /usr/share/applications/calamares.desktop
+
 # The COSMIC session entry point must stay available after the purge.
 systemctl enable greetd.service || true
 

@@ -91,7 +91,7 @@ sync_progress() {
   printf '\r  [%s] 100%%  semua data sudah tertulis  %ds  \n' "$(bar 100)" "$elapsed"
 }
 
-[ -n "$iso" ] || iso="$GNTRESS_OUT_DIR/$GNTRESS_NAME-$GNTRESS_VERSION-$GNTRESS_ARCH.iso"
+[ -n "$iso" ] || iso="$(default_iso)"
 [ -f "$iso" ] || die "ISO tidak ditemukan: $iso (jalankan 'just iso' dulu)"
 
 if [ -z "$mount_point" ]; then

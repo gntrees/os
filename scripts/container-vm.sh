@@ -1,32 +1,66 @@
 #!/usr/bin/env bash
-# Runs inside the VM container: boots the ISO, screenshots it, then stops.
+# Runs inside the VM container: boots the ISO (live) or the installed disk and
+# optionally saves screenshots. The live medium reaches the installer on its own,
+# so the guest is never driven from here.
+#
+# Arguments: <iso|""> <uefi|bios> <seconds>
+# Configuration comes from GNTREES_VM_* environment variables set by vm.sh.
 set -euo pipefail
 
-iso="${1:?iso}"
+iso="${1:-}"
 mode="${2:-uefi}"
-seconds="${3:-120}"
+seconds="${3:-900}"
+
+as_bool() {
+  case "${1,,}" in
+    1 | yes | true | on) printf 1 ;;
+    *) printf 0 ;;
+  esac
+}
+
+shots="$(as_bool "${GNTREES_VM_SHOTS:-0}")"
+fresh="$(as_bool "${GNTREES_VM_FRESH:-0}")"
+disk="${GNTREES_VM_DISK:-24}"
+case "$disk" in '' | *[!0-9]*) disk=0 ;; esac
+case "$seconds" in '' | *[!0-9]*) seconds=900 ;; esac
 
 mkdir -p /vm-out
+# Drop screenshots from the previous run so the output directory only ever
+# reflects this run, whether or not capturing is enabled.
 rm -f /vm-out/shot-*.ppm /vm-out/shot-*.png
 
+sendkey() {
+  printf 'sendkey %s\n' "$1" | socat - UNIX-CONNECT:/tmp/qmon >/dev/null 2>&1 || true
+}
+
+screendump() {
+  printf 'screendump %s\n' "$1" | socat - UNIX-CONNECT:/tmp/qmon >/dev/null 2>&1 || true
+}
+
 args=(
-  -m 4096 -smp 2 -vga std -boot d -no-reboot
-  -cdrom "$iso"
+  -m 4096 -smp 2 -vga std -no-reboot
   -display none -vnc :1
   -monitor unix:/tmp/qmon,server,nowait
 )
 
-# Optional blank target disk so Calamares has a device to install onto.
-disk="${GNTRESS_VM_DISK:-0}"
-case "$disk" in
-  '' | *[!0-9]*) disk=0 ;;
-esac
+# Installed mode boots the disk only; live mode boots the ISO and can offer the
+# same disk as the installation target.
+if [ -n "$iso" ]; then
+  args+=(-cdrom "$iso" -boot d)
+else
+  args+=(-boot c)
+fi
+
 if [ "$disk" -gt 0 ]; then
-  # Always start from an empty disk; the point is to exercise partitioning.
-  rm -f /vm-out/disk.qcow2
-  qemu-img create -f qcow2 /vm-out/disk.qcow2 "${disk}G" >/dev/null
-  args+=(-drive "file=/vm-out/disk.qcow2,if=virtio,format=qcow2")
-  echo "== disk target: ${disk} GiB (/vm-out/disk.qcow2)"
+  disk_path=/vm-out/disk.qcow2
+  [ "$fresh" = "1" ] && rm -f "$disk_path"
+  if [ ! -f "$disk_path" ]; then
+    qemu-img create -f qcow2 "$disk_path" "${disk}G" >/dev/null
+    echo "== disk target baru: ${disk} GiB"
+  else
+    echo "== disk target dipakai ulang: $disk_path"
+  fi
+  args+=(-drive "file=$disk_path,if=virtio,format=qcow2")
 fi
 
 if [ -w /dev/kvm ]; then
@@ -35,7 +69,7 @@ else
   echo "warn: /dev/kvm tidak bisa diakses, QEMU jalan tanpa akselerasi"
 fi
 
-if [ "$mode" = uefi ]; then
+if [ "$mode" = "uefi" ]; then
   code=
   for f in /usr/share/OVMF/OVMF_CODE_4M.fd /usr/share/OVMF/OVMF_CODE.fd; do
     [ -f "$f" ] && { code="$f"; break; }
@@ -44,7 +78,7 @@ if [ "$mode" = uefi ]; then
   for f in /usr/share/OVMF/OVMF_VARS_4M.fd /usr/share/OVMF/OVMF_VARS.fd; do
     [ -f "$f" ] && { vars="$f"; break; }
   done
-  [ -n "$code" ] && [ -n "$vars" ] || { echo "OVMF tidak ditemukan"; exit 1; }
+  [ -n "$code" ] && [ -n "$vars" ] || { echo "OVMF tidak ditemukan" >&2; exit 1; }
 
   cp "$vars" /tmp/vars.fd
   args+=(
@@ -58,85 +92,30 @@ fi
 
 qemu-system-x86_64 "${args[@]}" >/tmp/qemu.log 2>&1 &
 qemu_pid=$!
+trap 'kill "$qemu_pid" 2>/dev/null || true; exit 0' INT TERM
 
-# GRUB waits for a key press; boot the default entry once the menu is up.
+# GRUB pauses at the menu; pick the default entry once it is up. After that the
+# live medium goes straight into the installer kiosk, so there is nothing left
+# to type on the guest.
 sleep 12
-printf 'sendkey ret\n' | socat - UNIX-CONNECT:/tmp/qmon >/dev/null 2>&1 || true
+sendkey ret
 
-# Optional: authenticate into the live session (user / live) so the harness can
-# verify the desktop, panel and launcher rather than just the greeter.
-if [ "${GNTRESS_VM_LOGIN:-0}" = "1" ]; then
-  sleep 45
-  for key in u s e r ret; do
-    printf 'sendkey %s\n' "$key" | socat - UNIX-CONNECT:/tmp/qmon >/dev/null 2>&1 || true
-    sleep 0.4
-  done
-  sleep 1
-  for key in l i v e ret; do
-    printf 'sendkey %s\n' "$key" | socat - UNIX-CONNECT:/tmp/qmon >/dev/null 2>&1 || true
-    sleep 0.4
-  done
+# --- keep the VM alive, optionally capturing screenshots -------------------
+if [ "$(as_bool "${GNTREES_VM_VNC:-0}")" = "1" ]; then
+  echo "== VNC: vnc://127.0.0.1:5901 (Ctrl+C untuk berhenti)"
+else
+  echo "== VM berjalan tanpa VNC (Ctrl+C untuk berhenti)"
 fi
-
-shot=0
 elapsed=0
-while [ "$elapsed" -lt "$seconds" ]; do
+shot=0
+while [ "$seconds" -eq 0 ] || [ "$elapsed" -lt "$seconds" ]; do
   sleep 15
   elapsed=$((elapsed + 15))
-  shot=$((shot + 1))
-  printf 'screendump /vm-out/shot-%02d.ppm\n' "$shot" \
-    | socat - UNIX-CONNECT:/tmp/qmon >/dev/null 2>&1 || true
-done
-
-# Press Super once the session is up: the launcher should appear.
-printf 'sendkey meta_l\n' | socat - UNIX-CONNECT:/tmp/qmon >/dev/null 2>&1 || true
-# WebKit needs a moment to paint its first frame, especially under emulation.
-sleep 20
-printf 'screendump /vm-out/shot-launcher.ppm\n' \
-  | socat - UNIX-CONNECT:/tmp/qmon >/dev/null 2>&1 || true
-sleep 10
-printf 'screendump /vm-out/shot-launcher2.ppm\n' \
-  | socat - UNIX-CONNECT:/tmp/qmon >/dev/null 2>&1 || true
-
-# Optional: launch the installer from the launcher and capture the result.
-if [ "${GNTRESS_VM_INSTALL:-0}" = "1" ]; then
-  type_text() {
-    local text="$1" ch key i
-    for ((i = 0; i < ${#text}; i++)); do
-      ch="${text:i:1}"
-      case "$ch" in
-        ' ') key=spc ;;
-        '-') key=minus ;;
-        '/') key=slash ;;
-        '.') key=dot ;;
-        '=') key=equal ;;
-        ';') key=semicolon ;;
-        *) key="$ch" ;;
-      esac
-      printf 'sendkey %s\n' "$key" | socat - UNIX-CONNECT:/tmp/qmon >/dev/null 2>&1 || true
-      sleep 0.15
-    done
-    printf 'sendkey ret\n' | socat - UNIX-CONNECT:/tmp/qmon >/dev/null 2>&1 || true
-  }
-
-  if [ "${GNTRESS_VM_DEBUG:-0}" = "1" ]; then
-    # Bisect: does the launcher spawn at all, and what does Calamares say?
-    type_text "alacritty"
-    sleep 20
-    printf 'screendump /vm-out/shot-terminal.ppm\n' \
-      | socat - UNIX-CONNECT:/tmp/qmon >/dev/null 2>&1 || true
-    type_text "gntress-installer"
-    sleep 30
-    printf 'screendump /vm-out/shot-installer.ppm\n' \
-      | socat - UNIX-CONNECT:/tmp/qmon >/dev/null 2>&1 || true
-  else
-    type_text "gntress"
-    # Calamares is Qt: give it time to open its first window.
-    sleep 35
-    printf 'screendump /vm-out/shot-installer.ppm\n' \
-      | socat - UNIX-CONNECT:/tmp/qmon >/dev/null 2>&1 || true
+  if [ "$shots" = "1" ]; then
+    shot=$((shot + 1))
+    screendump "$(printf '/vm-out/shot-%02d.png' "$shot")"
   fi
-fi
+done
 
 kill "$qemu_pid" 2>/dev/null || true
 wait "$qemu_pid" 2>/dev/null || true
@@ -144,6 +123,6 @@ wait "$qemu_pid" 2>/dev/null || true
 echo "== qemu log:"
 tail -n 8 /tmp/qemu.log || true
 
-chown -R "${GNTRESS_UID:-0}:${GNTRESS_GID:-0}" /vm-out 2>/dev/null || true
-echo "== tangkapan layar:"
+chown -R "${GNTREES_UID:-0}:${GNTREES_GID:-0}" /vm-out 2>/dev/null || true
+echo "== isi /vm-out:"
 ls -1 /vm-out

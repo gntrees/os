@@ -1,0 +1,11 @@
+Package: gntrees-os-desktop
+Version: @VERSION@
+Architecture: @ARCH@
+Maintainer: Gntrees Maintainers <maintainers@gntrees.com>
+Installed-Size: @INSTALLED_SIZE@
+Section: x11
+Priority: optional
+Depends: gntrees-os-launcher (= @VERSION@)
+Description: COSMIC desktop defaults for gntrees-os
+ Wallpaper, Super binding, App Tray pin, and the Dock launcher button that
+ point the session at gntrees-launcher.

@@ -1,0 +1,11 @@
+Package: gntrees-os-launcher
+Version: @VERSION@
+Architecture: @ARCH@
+Maintainer: Gntrees Maintainers <maintainers@gntrees.com>
+Installed-Size: @INSTALLED_SIZE@
+Section: x11
+Priority: optional
+Depends: libgtk-3-0t64, libwebkit2gtk-4.1-0
+Description: Raycast-style application launcher for gntrees-os
+ A small Tauri application that lists the installed desktop entries and opens
+ the selected one. It also reports a short status row for the session.

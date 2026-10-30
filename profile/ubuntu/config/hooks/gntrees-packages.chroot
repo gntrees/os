@@ -1,0 +1,25 @@
+#!/bin/sh
+# Installs the gntrees packages from the published APT repository.
+#
+# live-build runs chroot hooks after chroot_includes, and includes.chroot copies
+# the staged COSMIC rootfs over the chroot. Installing here means the package
+# files win and dpkg records them, instead of being overwritten by the staged
+# defaults.
+set -e
+
+export DEBIAN_FRONTEND=noninteractive
+
+# The archive is added before package installation, so its index is usually
+# already fetched; refresh only when the install cannot resolve the package.
+if ! apt-get install -y --no-install-recommends gntrees-os-release; then
+	apt-get update
+	apt-get install -y --no-install-recommends gntrees-os-release
+fi
+
+# Drop the build-time archive entry and its oddly named keyring. The persistent
+# source shipped through includes.chroot (zz-gntrees.list) replaces them, and
+# keeping both makes apt warn about duplicate targets on every update.
+rm -f /etc/apt/sources.list.d/gntrees.list \
+      /etc/apt/trusted.gpg.d/gntrees.key.chroot.gpg
+
+apt-get clean

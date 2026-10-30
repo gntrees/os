@@ -1,4 +1,4 @@
-GENERAL CODE PLACEMENT — gntress-os placement note
+GENERAL CODE PLACEMENT — gntrees-os placement note
 ===================================================
 
 Adapted from the project-agnostic "kind + domain" placement rule. This file is the
@@ -84,11 +84,13 @@ Kinds used here:
   profile    image/profile inputs consumed by the ISO builder
   doc        documentation (plain text only)
   app        application source trees built for the image
+  packaging  declarative package metadata (control templates, release stamp)
 
 Domains used here:
   build, components, versions, greetd, wallpaper, installer,
   doctor, fetch, stage, preview, iso, clean, usb, vendor, app, container, vm,
-  ubuntu, ubuntu-iso, placement
+  ubuntu, ubuntu-iso, placement, launcher, desktop, system, release, cosmic,
+  deb, repo, container-deb, container-repo, publish
 
 Layout map (module root is plumbing, see section 8):
 
@@ -101,15 +103,16 @@ Layout map (module root is plumbing, see section 8):
     components.list                 domain: components
     versions.lock                   domain: versions
     greetd.toml                     domain: greetd
+    greetd-live.toml                domain: greetd
     vendor.lock                     domain: vendor
     wallpaper/                      domain: wallpaper
-      gntress-genesis.jpg
+      gntrees-genesis.jpg
       cosmic-background.ron
     installer/                      domain: installer
       settings.conf
       modules/                      (per-module Calamares config)
-      branding/gntress/branding.desc
-      gntress-installer.desktop
+      branding/gntrees/branding.desc
+      gntrees-installer.desktop
       calamares.desktop              (NoDisplay override)
 
   scripts/                          KIND: script
@@ -130,12 +133,28 @@ Layout map (module root is plumbing, see section 8):
     container-iso.sh                domain: container-iso
     container-app.sh                domain: container-app
     container-vm.sh                 domain: container-vm
+    container-deb.sh                domain: container-deb
+    container-repo.sh               domain: container-repo
+    deb.sh                          domain: deb
+    repo.sh                         domain: repo
+    publish.sh                      domain: publish
     vm.sh                           domain: vm
-    installer/gntress-installer    domain: installer
+    installer/gntrees-installer    domain: installer
+    installer/live-session         domain: installer
+    installer/grub-install         domain: installer
     installer/postinstall.sh       domain: installer
 
   apps/                             KIND: app
     launcher/                       domain: launcher (package root, see E5)
+
+  packaging/                        KIND: packaging
+    launcher/control                domain: launcher
+    desktop/control                 domain: desktop
+    desktop/postinst                domain: desktop
+    desktop/triggers                domain: desktop
+    system/control                  domain: system
+    release/control                 domain: release
+    cosmic/control                  domain: cosmic
 
   containers/                       KIND: container
     ubuntu.Dockerfile               domain: ubuntu
@@ -176,6 +195,12 @@ E5. Application package roots.
     Each folder under apps/ is a package root. Files inside it follow the
     toolchain's own layout (src/, ui/, data/, tauri.conf.json) and are not assigned
     a kind or domain individually.
+
+E6. Debian maintainer scripts.
+    A packaging/<domain>/ folder may also hold the package's Debian maintainer
+    scripts (postinst) and dpkg trigger definitions (triggers). They are package
+    metadata for that domain and stay beside control so `just deb` can assemble
+    DEBIAN/ from one place. Two such files share the packaging kind on purpose.
 
 -------------------------------------------------------------------------------
 9. PLACING A FILE — ALGORITHM

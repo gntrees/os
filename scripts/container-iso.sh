@@ -5,8 +5,8 @@ set -eu
 # live-build runs as root. Hand the tree back to the host user on the way out,
 # including on failure, so `just clean` and the next rm -rf need no sudo.
 hand_back() {
-  if [ -n "${GNTRESS_UID:-}" ] && [ -n "${GNTRESS_GID:-}" ]; then
-    chown -R "${GNTRESS_UID}:${GNTRESS_GID}" /build /var/cache/apt 2>/dev/null || true
+  if [ -n "${GNTREES_UID:-}" ] && [ -n "${GNTREES_GID:-}" ]; then
+    chown -R "${GNTREES_UID}:${GNTREES_GID}" /build /var/cache/apt 2>/dev/null || true
   fi
 }
 trap hand_back EXIT
@@ -15,12 +15,12 @@ cd /build
 
 lb config noauto \
   --mode ubuntu \
-  --distribution "${GNTRESS_SUITE:?}" \
+  --distribution "${GNTREES_SUITE:?}" \
   --architectures amd64 \
   --archive-areas "main restricted universe multiverse" \
-  --mirror-bootstrap "${GNTRESS_MIRROR:?}" \
-  --mirror-chroot "${GNTRESS_MIRROR:?}" \
-  --mirror-binary "${GNTRESS_MIRROR:?}" \
+  --mirror-bootstrap "${GNTREES_MIRROR:?}" \
+  --mirror-chroot "${GNTREES_MIRROR:?}" \
+  --mirror-binary "${GNTREES_MIRROR:?}" \
   --linux-packages linux-image \
   --linux-flavours generic \
   --binary-images iso \
@@ -29,11 +29,11 @@ lb config noauto \
   --initsystem systemd \
   --debian-installer false \
   --memtest none \
-  --bootappend-live "components quiet splash" \
-  --iso-application "${GNTRESS_NAME:-gntress-os}" \
-  --iso-preparer "gntress-os build" \
-  --iso-publisher "gntress-os" \
-  --iso-volume "GNTRESS_OS" \
+  --bootappend-live "components quiet splash noeject" \
+  --iso-application "${GNTREES_NAME:-gntrees-os}" \
+  --iso-preparer "gntrees-os build" \
+  --iso-publisher "gntrees-os" \
+  --iso-volume "GNTREES_OS" \
   --apt-source-archives false \
   --zsync false \
   --compression xz
@@ -44,5 +44,5 @@ lb build
 # step rejects grub2. Rebuild from binary/ so the ISO is hybrid and boots on
 # both BIOS and UEFI.
 rm -f /build/*.iso
-grub-mkrescue -o "/build/${GNTRESS_NAME:?}-${GNTRESS_VERSION:?}-amd64.iso" /build/binary \
-  -- -volid GNTRESS_OS
+grub-mkrescue -o "/build/${GNTREES_NAME:?}-${GNTREES_VERSION:?}-amd64.iso" /build/binary \
+  -- -volid GNTREES_OS

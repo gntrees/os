@@ -2,9 +2,9 @@
 # Shared helpers (kind: script, domain: shared).
 set -euo pipefail
 
-GNTRESS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+GNTREES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=../config/build.conf
-. "$GNTRESS_ROOT/config/build.conf"
+. "$GNTREES_ROOT/config/build.conf"
 
 log()  { printf '\033[1;34m==>\033[0m %s\n' "$*"; }
 warn() { printf '\033[1;33mwarn:\033[0m %s\n' "$*" >&2; }
@@ -30,20 +30,26 @@ enabled_components() {
       if ($0 ~ /^[[:space:]]*#/ || NF < 2) next
       if ($2 == "yes") print $1, repo[$1], rev[$1], builder[$1]
     }
-  ' "$GNTRESS_ROOT/config/versions.lock" "$GNTRESS_ROOT/config/components.list"
+  ' "$GNTREES_ROOT/config/versions.lock" "$GNTREES_ROOT/config/components.list"
 }
 
 # Cached path of an artifact pinned in config/vendor.lock. Output: absolute path.
 vendor_file() {
   local name="$1" url
-  url=$(awk -v name="$name" '$1 == name { print $3 }' "$GNTRESS_ROOT/config/vendor.lock")
+  url=$(awk -v name="$name" '$1 == name { print $3 }' "$GNTREES_ROOT/config/vendor.lock")
   [ -n "$url" ] || die "vendor.lock: entri '$name' tidak ditemukan"
-  printf '%s/vendor/%s\n' "$GNTRESS_CACHE_DIR" "$(basename "$url")"
+  printf '%s/vendor/%s\n' "$GNTREES_CACHE_DIR" "$(basename "$url")"
+}
+
+# Default ISO path, shared by usb.sh and vm.sh so neither needs a path typed.
+default_iso() {
+  printf '%s/%s-%s-%s.iso\n' \
+    "$GNTREES_OUT_DIR" "$GNTREES_NAME" "$GNTREES_VERSION" "$GNTREES_ARCH"
 }
 
 ensure_build_dirs() {
-  mkdir -p "$GNTRESS_SRC_DIR" "$GNTRESS_CARGO_DIR" "$GNTRESS_TARGET_DIR" \
-           "$GNTRESS_ROOTFS_DIR" "$GNTRESS_LIVE_DIR" "$GNTRESS_OUT_DIR"
+  mkdir -p "$GNTREES_SRC_DIR" "$GNTREES_CARGO_DIR" "$GNTREES_TARGET_DIR" \
+           "$GNTREES_ROOTFS_DIR" "$GNTREES_LIVE_DIR" "$GNTREES_OUT_DIR"
 }
 
 # Remove a build tree. Containers run as root, so a tree left behind by an
@@ -57,8 +63,8 @@ remove_tree() {
   command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1 \
     || die "tidak bisa menghapus $dir (milik root); jalankan: sudo rm -rf '$dir'"
 
-  img="$GNTRESS_ISO_IMAGE"
-  docker image inspect "$img" >/dev/null 2>&1 || img="$GNTRESS_BUILDER_IMAGE"
+  img="$GNTREES_ISO_IMAGE"
+  docker image inspect "$img" >/dev/null 2>&1 || img="$GNTREES_BUILDER_IMAGE"
   docker image inspect "$img" >/dev/null 2>&1 || img="alpine:3"
   warn "menghapus $dir lewat container ($img)"
   docker run --rm -v "$dir:/target" "$img" \
@@ -74,4 +80,28 @@ docker_ok() {
 
 fs_type() {
   stat -f -c %T "$1" 2>/dev/null || echo unknown
+}
+
+# Content fingerprint of everything that ends up in the ISO. `just iso` compares
+# it with the stamp written after the last successful build and skips the build
+# when nothing changed. GNTREES_FORCE_ISO=1 bypasses the check.
+iso_fingerprint() {
+  local keyring="${GNTREES_KEYRING_FILE:-$GNTREES_BUILD_DIR/keys/gntrees-archive-keyring.asc}"
+  {
+    printf 'name=%s version=%s arch=%s\n' \
+      "$GNTREES_NAME" "$GNTREES_VERSION" "$GNTREES_ARCH"
+    printf 'apt=%s suite=%s\n' "$GNTREES_APT_URL" "$GNTREES_APT_SUITE"
+    find "$GNTREES_ROOTFS_DIR" \( -type f -o -type l \) \
+      -printf '%P %s %T@ %l\n' 2>/dev/null | sort || true
+    find "$GNTREES_ROOT/profile" "$GNTREES_ROOT/config" "$GNTREES_ROOT/scripts" \
+         "$GNTREES_ROOT/containers" "$GNTREES_ROOT/apps/launcher/data" \
+         "$GNTREES_ROOT/apps/launcher/icons" \
+         \( -type f -o -type l \) -printf '%P %s %T@ %l\n' 2>/dev/null | sort || true
+    if [ -f "$GNTREES_APT_DIR/dists/$GNTREES_APT_SUITE/Release" ]; then
+      sha256sum "$GNTREES_APT_DIR/dists/$GNTREES_APT_SUITE/Release"
+    fi
+    if [ -f "$keyring" ]; then
+      sha256sum "$keyring"
+    fi
+  } | sha256sum | cut -d' ' -f1
 }

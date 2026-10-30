@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "gntress-launcher",
+  "productName": "gntrees-launcher",
   "version": "0.1.0",
-  "identifier": "os.gntress.launcher",
+  "identifier": "os.gntrees.launcher",
   "build": {
     "frontendDist": "ui"
   },
@@ -11,7 +11,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "gntress",
+        "title": "gntrees",
         "width": 720,
         "height": 460,
         "center": true,

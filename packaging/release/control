@@ -1,0 +1,11 @@
+Package: gntrees-os-release
+Version: @VERSION@
+Architecture: @ARCH@
+Maintainer: Gntrees Maintainers <maintainers@gntrees.com>
+Installed-Size: @INSTALLED_SIZE@
+Section: metapackages
+Priority: optional
+Depends: @DEPENDS@
+Description: gntrees-os release metapackage
+ Pulls in every component that makes up a gntrees-os release and records the
+ release identity in /etc/gntrees-release.

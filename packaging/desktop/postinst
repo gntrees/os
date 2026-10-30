@@ -1,0 +1,34 @@
+#!/bin/sh
+# Applies the gntrees-os desktop defaults that live in files owned by COSMIC
+# packages. Runs on configure and whenever dpkg activates one of the triggers,
+# so upgrading cosmic-settings-daemon, cosmic-applets, or cosmic-bg re-applies
+# them instead of leaving the session with the upstream defaults.
+set -e
+
+apply_defaults() {
+  shortcuts=/usr/share/cosmic/com.system76.CosmicSettings.Shortcuts/v1/system_actions
+  favorites=/usr/share/cosmic/com.system76.CosmicAppList/v1/favorites
+  background=/usr/share/cosmic/com.system76.CosmicBackground/v1/all
+  default_background=/usr/share/gntrees-os/defaults/cosmic-background-all
+
+  # Super and Super+/ must open our launcher; cosmic-launcher is not in the image.
+  if [ -f "$shortcuts" ]; then
+    sed -i 's/^\([[:space:]]*\)Launcher: "cosmic-launcher",/\1Launcher: "gntrees-launcher",/' "$shortcuts"
+  fi
+
+  # Keep the launcher pinned in the App Tray.
+  if [ -f "$favorites" ] && ! grep -q '"gntrees-launcher"' "$favorites"; then
+    sed -i '/^[[:space:]]*]/i\    "gntrees-launcher",' "$favorites"
+  fi
+
+  # Default wallpaper; cosmic-bg reads this key at startup.
+  if [ -f "$default_background" ]; then
+    install -Dm0644 "$default_background" "$background"
+  fi
+}
+
+case "${1:-}" in
+  configure|triggered) apply_defaults ;;
+esac
+
+exit 0

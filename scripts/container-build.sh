@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Runs inside the build container. Repo is mounted read-only at /gntress.
+# Runs inside the build container. Repo is mounted read-only at /gntrees.
 set -euo pipefail
-. /gntress/scripts/lib.sh
+. /gntrees/scripts/lib.sh
 
 # Cargo runs as root here. Hand the artifacts back to the host user on the way
 # out, including on failure, so target/ and cargo/ stay deletable without sudo.
 hand_back() {
-  if [ -n "${GNTRESS_UID:-}" ] && [ -n "${GNTRESS_GID:-}" ]; then
-    chown -R "${GNTRESS_UID}:${GNTRESS_GID}" /target /cargo /src 2>/dev/null || true
+  if [ -n "${GNTREES_UID:-}" ] && [ -n "${GNTREES_GID:-}" ]; then
+    chown -R "${GNTREES_UID}:${GNTREES_GID}" /target /cargo /src 2>/dev/null || true
   fi
 }
 trap hand_back EXIT

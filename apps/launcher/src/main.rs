@@ -1,4 +1,4 @@
-// gntress-launcher — Raycast-style application launcher (kind: app, domain: launcher).
+// gntrees-launcher — Raycast-style application launcher (kind: app, domain: launcher).
 //
 // Version 1: list installed applications, filter by typing, open on Enter.
 // The status row above the input is a placeholder for COSMIC applets; for now it
@@ -353,7 +353,7 @@ fn setup_single_instance(app: &tauri::AppHandle) {
     let dir = std::env::var_os("XDG_RUNTIME_DIR")
         .map(PathBuf::from)
         .unwrap_or_else(|| PathBuf::from("/tmp"));
-    let path = dir.join("gntress-launcher.sock");
+    let path = dir.join("gntrees-launcher.sock");
 
     if let Ok(mut stream) = UnixStream::connect(&path) {
         let _ = stream.write_all(b"show\n");
@@ -405,5 +405,5 @@ fn main() {
             }
         })
         .run(tauri::generate_context!())
-        .expect("gagal menjalankan gntress-launcher");
+        .expect("gagal menjalankan gntrees-launcher");
 }
